@@ -8,15 +8,27 @@
 import SwiftUI
 
 struct FlightBoardView: View {
+    @State private var hiddenCanceled = false
     let boardName: String
     let flightInfo: [FlightInformation]
     
+    private var shownFlight: [FlightInformation] {
+        hiddenCanceled
+            ? flightInfo.filter { $0.status != .cancelled }
+            : flightInfo
+    }
+    
     var body: some View {
-        List(flightInfo) { flight in
+        List(shownFlight) { flight in
             FlightRowView(flight: flight)
         }
         .listStyle(.plain)
         .navigationTitle(boardName)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Toggle("Hide canceled", isOn: $hiddenCanceled)
+            }
+        }
     }
 }
 
