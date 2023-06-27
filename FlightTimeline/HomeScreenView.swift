@@ -7,8 +7,37 @@
 
 import SwiftUI
 
+enum Route: Hashable {
+    case arrivals
+    case departures
+    case timeline
+    
+    var title: String {
+        switch self {
+            case .arrivals:
+                return "Arrivals"
+            case .departures:
+                return "Departures"
+            case .timeline:
+                return "Flight Timeline"
+        }
+    }
+}
+
 struct HomeScreenView: View {
     private let flightInfo = FlightInformation.generateFlights()
+    
+    private var arrivals: [FlightInformation] {
+        flightInfo.filter {
+            $0.direction == .arrival
+        }
+    }
+    
+    private var departures: [FlightInformation] {
+        flightInfo.filter {
+            $0.direction == .departure
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -20,21 +49,9 @@ struct HomeScreenView: View {
                     .rotationEffect(.degrees(-90))
                 
                 VStack(alignment: .leading) {
-                    NavigationLink("Arrivals") {
-                        FlightBoardView(
-                            boardName: "Arrivals",
-                            flightInfo: flightInfo.filter { $0.direction == .arrival }
-                        )
-                    }
-                    NavigationLink("Departures") {
-                        FlightBoardView(
-                            boardName: "Departures",
-                            flightInfo: flightInfo.filter { $0.direction == .departure }
-                        )
-                    }
-                    NavigationLink("Flight Timeline") {
-                        TimeLineView(flights: flightInfo)
-                    }
+                    NavigationLink(Route.arrivals.title, value: Route.arrivals)
+                    NavigationLink(Route.departures.title, value: Route.departures)
+                    NavigationLink(Route.timeline.title, value: Route.timeline)
                     
                     Spacer()
                 }
@@ -42,6 +59,16 @@ struct HomeScreenView: View {
                 .padding()
             }
             .navigationTitle("Airport")
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                    case .arrivals:
+                        FlightBoardView(boardName: Route.arrivals.title, flightInfo: arrivals)
+                    case .departures:
+                        FlightBoardView(boardName: Route.departures.title, flightInfo: departures)
+                    case .timeline:
+                        TimeLineView(flights: flightInfo)
+                }
+            }
         }
     }
 }

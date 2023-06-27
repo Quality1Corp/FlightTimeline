@@ -14,13 +14,15 @@ struct FlightBoardView: View {
     
     private var shownFlight: [FlightInformation] {
         hiddenCanceled
-            ? flightInfo.filter { $0.status != .cancelled }
-            : flightInfo
+        ? flightInfo.filter { $0.status != .cancelled }
+        : flightInfo
     }
     
     var body: some View {
         List(shownFlight) { flight in
-            FlightRowView(flight: flight)
+            NavigationLink(destination: FlightDetailsView(flight: flight)) {
+                FlightRowView(flight: flight)
+            }
         }
         .listStyle(.plain)
         .navigationTitle(boardName)
